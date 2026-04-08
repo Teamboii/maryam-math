@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fields Medal — Maryam Mirzakhani</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #0f1923; color: #eee; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+  h1 { font-size: 1.1rem; font-weight: 500; color: #f0c060; margin-bottom: 4px; text-align: center; }
+  p.sub { font-size: 0.78rem; color: #888; margin-bottom: 18px; text-align: center; }
+  svg#fm { display: block; max-width: 680px; width: 100%; }
+  .legend { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; margin: 10px 0; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #aaa; }
+  .legend-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+  #hoverinfo { font-size: 13px; color: #aaa; text-align: center; margin-top: 8px; min-height: 20px; }
+</style>
+</head>
+<body>
+<h1>Every Fields Medal winner since 1936</h1>
+<p class="sub">Given every 4 years · must be under 40 · only ~64 people ever · hover each circle</p>
+<svg id="fm" viewBox="0 0 680 260"></svg>
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#2a3a4a;border:1px solid #445;"></div> Other winner (63 men)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#F5C060;"></div> Maryam Mirzakhani, 2014 — first woman ever</div>
+</div>
+<p id="hoverinfo">Hover a circle to learn more</p>
+<script>
+(function(){
+  const svg=document.getElementById('fm');
+  const NS='http://www.w3.org/2000/svg';
+  const total=64,cols=16,R=14,GAP=8;
+  const cellW=R*2+GAP,cellH=R*2+GAP;
+  const totalW=cols*cellW-GAP,totalH=Math.ceil(total/cols)*cellH-GAP;
+  const startX=(680-totalW)/2,startY=(260-totalH)/2;
+  const maryamIndex=54;
+  const years=[1936,1950,1954,1958,1962,1966,1970,1974,1978,1982,1986,1990,1994,1998,2002,2006,2010,2014,2018,2022];
+
+  for(let i=0;i<total;i++){
+    const col=i%cols,row=Math.floor(i/cols);
+    const cx=startX+col*cellW+R,cy=startY+row*cellH+R;
+    const isMaryam=(i===maryamIndex);
+    const g=document.createElementNS(NS,'g');
+    g.style.cssText='cursor:pointer;opacity:0;transition:opacity 0.12s';
+
+    const circle=document.createElementNS(NS,'circle');
+    circle.setAttribute('cx',cx);circle.setAttribute('cy',cy);
+    circle.setAttribute('r',isMaryam?R+1:R);
+    if(isMaryam){
+      circle.setAttribute('fill','#F5C060');circle.setAttribute('stroke','#C47A10');circle.setAttribute('stroke-width','2');
+    } else {
+      circle.setAttribute('fill','#1e2d3d');circle.setAttribute('stroke','#3a4d5c');circle.setAttribute('stroke-width','1');
+    }
+    g.appendChild(circle);
+
+    if(isMaryam){
+      const star=document.createElementNS(NS,'text');
+      star.setAttribute('x',cx);star.setAttribute('y',cy+5);
+      star.setAttribute('text-anchor','middle');star.setAttribute('font-size','16');
+      star.setAttribute('fill','#8B5500');star.textContent='★';
+      g.appendChild(star);
+      const lbl=document.createElementNS(NS,'text');
+      lbl.setAttribute('x',cx);lbl.setAttribute('y',cy+R+14);
+      lbl.setAttribute('text-anchor','middle');lbl.setAttribute('font-size','9');
+      lbl.setAttribute('fill','#C47A10');lbl.textContent='2014';
+      g.appendChild(lbl);
+    } else {
+      const dot=document.createElementNS(NS,'circle');
+      dot.setAttribute('cx',cx);dot.setAttribute('cy',cy-2);dot.setAttribute('r',4);dot.setAttribute('fill','#3a5060');
+      g.appendChild(dot);
+      const body=document.createElementNS(NS,'path');
+      body.setAttribute('d',`M${cx-5},${cy+8} Q${cx},${cy+3} ${cx+5},${cy+8}`);
+      body.setAttribute('fill','none');body.setAttribute('stroke','#3a5060');body.setAttribute('stroke-width','2');body.setAttribute('stroke-linecap','round');
+      g.appendChild(body);
+    }
+
+    g.addEventListener('mouseenter',function(){
+      circle.setAttribute('stroke-width','2.5');
+      if(!isMaryam){circle.setAttribute('fill','#1e3a5a');circle.setAttribute('stroke','#5a8aaa');}
+      const yr=years[Math.floor(i/(total/years.length))];
+      document.getElementById('hoverinfo').textContent=isMaryam
+        ?'★ Maryam Mirzakhani — 2014 — first and only woman in 78 years of the award'
+        :`Winner #${i+1} of ${total} — around ${yr}`;
+    });
+    g.addEventListener('mouseleave',function(){
+      circle.setAttribute('stroke-width',isMaryam?'2':'1');
+      if(!isMaryam){circle.setAttribute('fill','#1e2d3d');circle.setAttribute('stroke','#3a4d5c');}
+      document.getElementById('hoverinfo').textContent='Hover a circle to learn more';
+    });
+
+    svg.appendChild(g);
+    setTimeout(()=>{g.style.opacity='1';},i*28+100);
+  }
+})();
+</script>
+</body>
+</html>
